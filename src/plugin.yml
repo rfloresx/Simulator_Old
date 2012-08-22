@@ -1,0 +1,3 @@
+name: Simulator
+main: com.github.otrebor4.simulator.Simulator
+version: 0.0
