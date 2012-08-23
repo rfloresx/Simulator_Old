@@ -19,16 +19,23 @@ public class CraftNPC extends PathNPC {
         iteminworldmanager.setGameMode(EnumGamemode.SURVIVAL  );
 
         NPCSocket socket = new NPCSocket();
-        NetworkManager netMgr = new NPCNetworkManager(socket, "npc mgr", new NetHandler() {
-			@Override
-			public boolean a() {
+        NetworkManager netMgr = null;
+		try {
+			netMgr = new NPCNetworkManager(socket, "npc mgr", new NetHandler() {
+				@Override
+				public boolean a() {
 
-				return false;
-			}
-        }, server.E().getPrivate());
-        this.netServerHandler = new NPCNetHandler(minecraftserver, this, netMgr);
-        netMgr.a(this.netServerHandler);
-
+					return false;
+				}
+			}, server.E().getPrivate());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(netMgr != null){
+			this.netServerHandler = new NPCNetHandler(minecraftserver, this, netMgr);
+        	netMgr.a(this.netServerHandler);
+		}
         try {
             socket.close();
         } catch (IOException ex) {

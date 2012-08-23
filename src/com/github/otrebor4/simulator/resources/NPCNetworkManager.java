@@ -1,5 +1,6 @@
 package com.github.otrebor4.simulator.resources;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.Socket;
 import java.security.PrivateKey;
@@ -21,7 +22,7 @@ public class NPCNetworkManager extends NetworkManager {
 	}
 	
 	public NPCNetworkManager(Socket paramSocket, String paramString,
-			NetHandler paramNetHandler, PrivateKey key) {
+			NetHandler paramNetHandler, PrivateKey key) throws IOException {
 		
 		super(paramSocket, paramString, paramNetHandler, key);
 

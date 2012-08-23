@@ -19,7 +19,6 @@ public class CleanTask extends Task {
 	
 	private Vector3 curPos = Vector3.ZERO();
 	
-	
 	//TODO: dynamically set the dimension of the zone to clean
 	public CleanTask(PathNPC npc) {
 		super(npc);
@@ -27,7 +26,6 @@ public class CleanTask extends Task {
 		world = npc.getBukkitEntity().getWorld();
 		setZone( geVectorFromLocation(npc.getBukkitEntity().getLocation()), new Vector3( 10, 10, 10)  );
 	}
-	
 	 
 	public Vector3 geVectorFromLocation( Location l){
 		return new Vector3(l.getBlockX(), l.getBlockY(), l.getBlockZ());
