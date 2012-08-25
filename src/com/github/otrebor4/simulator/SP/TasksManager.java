@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.github.otrebor4.simulator.SP.tasks.BuildingTask;
 import com.github.otrebor4.simulator.SP.tasks.CleanTask;
 import com.github.otrebor4.simulator.SP.tasks.CollectTask;
 import com.github.otrebor4.simulator.SP.tasks.ExploreTask;
@@ -17,7 +18,8 @@ public class TasksManager {
 		EXPLORE,
 		SAFE,
 		CLEAN,
-		COLLECT;
+		COLLECT,
+		BUILDING;
 	}
 	
 	static SimulatedPlayer m_player;
@@ -37,6 +39,8 @@ public class TasksManager {
 			return new CleanTask(m_player);
 		case COLLECT:
 			return new CollectTask(m_player);
+		case BUILDING:
+			return new BuildingTask(m_player);
 		}
 		return null;
 	}
@@ -53,7 +57,7 @@ public class TasksManager {
 		
 		//Random rand = Rand.random;
 		if( !types.isEmpty())
-			return types.get( 2); //rand.nextInt(types.size()));
+			return types.get( 4); //rand.nextInt(types.size()));
 		return null;
 	}
 	

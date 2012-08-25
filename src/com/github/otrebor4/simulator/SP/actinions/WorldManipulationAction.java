@@ -40,6 +40,19 @@ public class WorldManipulationAction extends Action{
 		}
 	}
 	
+	public PLACE_BLOCK_ERR placeBlock( int blockid, Vector3 pos ){
+		//Chunk chunk = world.getChunkAt(npc.getBukkitEntity().getLocation());
+		Block destBlock = world.getBlockAt(pos.x, pos.y, pos.z);
+		
+		if(destBlock.isEmpty()){
+			destBlock.setTypeId( blockid);
+			return PLACE_BLOCK_ERR.NONE;
+		}
+		else{
+			return PLACE_BLOCK_ERR.OCUPPIED;
+		}
+	}
+	
 	public BREAK_BLOCK_ERR breakBlock(Vector3 pos){
 		if(pos == null){
 			return BREAK_BLOCK_ERR.NOBLOCK;
