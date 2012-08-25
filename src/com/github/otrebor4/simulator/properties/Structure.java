@@ -62,10 +62,11 @@ public class Structure {
 	
 	public static boolean fileExist( String path){
 		try {
-			@SuppressWarnings("unused")
 			FileReader file = new FileReader(path);
-		} catch (FileNotFoundException e) {
-			return false;
+			file.close();
+		} catch (IOException e) {
+			if(e instanceof FileNotFoundException)
+				return false;
 		}
 		
 		return true;
@@ -119,7 +120,7 @@ public class Structure {
 							}
 						}
 						else if( y == 1){
-							if( z == 0 || z == 4 ){
+							if( z == 0){
 								if( x == 2){
 									data +="102";
 								}
@@ -127,18 +128,27 @@ public class Structure {
 									data += "04";
 								}
 							}
-							else if( z != 2){
+							else if( z == 2){
 								if(x == 0 || x == 4){
-									data += "04";
+									data += "102";
 								}else{
 									data += "00";
 								}
 							}
+							else if( z == 4){
+								if( x == 2){
+									data +="64";
+								}
+								else{
+									data += "04";
+								}
+							}
 							else {
 								if( x == 0 || x == 4){
-									data += "102";
+									data += "04";
+								}else{
+									data += "00";
 								}
-								data += "00";
 							}
 						}
 						else if( y == 3){

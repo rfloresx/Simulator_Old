@@ -1,10 +1,13 @@
 package com.github.otrebor4.simulator.util;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class Construction {
 	HashMap<Vector3, BlocksData > blocks = new HashMap<Vector3, BlocksData>();
+	List<Vector3> keyset = new LinkedList<Vector3>();
 	private Vector3 Dimension = null;
 	private Vector3 WorldPos = Vector3.ZERO();
 	
@@ -34,15 +37,32 @@ public class Construction {
 	
 	public void addBlock(Vector3 pos, int blockid){
 		blocks.put( pos, new BlocksData( blockid, pos, 0));
+		keyset.add( pos );
 	}
 	
 	public void SetWordPos(Vector3 pos ){
 		WorldPos = pos;
 	}
 	
+	public Vector3 getNextPosIg(int... blockids){
+		for(Vector3 pos: keyset){
+			boolean ig = false;
+			for(int id : blockids){
+				if( blocks.get(pos).blockid == id ){
+					ig = true;
+				}
+			}
+			if(!ig){
+				return pos;
+			}
+		}
+		return null;
+		
+	}
+	
 	public Vector3 getNextPos(){
-		for(Vector3 pos: blocks.keySet()){
-			return pos;
+		if( !keyset.isEmpty()){
+			return keyset.get(0);
 		}
 		return null;
 	}
@@ -54,10 +74,14 @@ public class Construction {
 		return -1;
 	}
 	
-	public void remobeBlockPos(Vector3 pos){
+	public BlocksData remobeBlockPos(Vector3 pos){
+		if(pos == null)
+			return null;
 		if(blocks.containsKey( pos)){
-			blocks.remove(pos);
+			keyset.remove(pos);
+			return blocks.remove(pos);
 		}
+		return null;
 	}
 	
 	public Vector3 getWorldPos(Vector3 pos){
@@ -74,14 +98,19 @@ public class Construction {
 		return getWorldPos( new Vector3(x, 0, z));
 	}
 	
-	class BlocksData{
-		int priority;
-		Vector3 pos;
-		int blockid;
+	public static class BlocksData{
+		public int priority;
+		public Vector3 pos;
+		public int blockid;
 		BlocksData(int blockid, Vector3 pos, int val){
 			this.blockid = blockid;
 			this.pos = pos;
 			this.priority = val;
+		}
+		@Override
+		public String toString(){
+			return "Pos " + pos.toString() + " id " + blockid;
+			
 		}
 	}
 }

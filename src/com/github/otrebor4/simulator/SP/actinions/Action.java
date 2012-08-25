@@ -24,4 +24,8 @@ public class Action {
 	public boolean done(){ return finished;}
 
 	public void setDone(boolean val){ finished = val;}
+
+	public boolean isInAction() {
+		return false;
+	}
 }

@@ -1,5 +1,8 @@
 package com.github.otrebor4.simulator.SP.tasks;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -16,6 +19,7 @@ public class CleanTask extends Task {
 	private World world;
 	private Vector3 target;
 	BlockInteraction interaction;
+	List<Vector3> targets = new LinkedList<Vector3>();
 	
 	private Vector3 curPos = Vector3.ZERO();
 	
@@ -112,7 +116,6 @@ public class CleanTask extends Task {
 			if( target == null || target.y < -1000){
 				if(lastCheck()){
 					this.finished = true;
-					Messaging.log(" last check Done");
 				}
 				curPos = Vector3.ZERO();
 				return;
@@ -152,16 +155,57 @@ public class CleanTask extends Task {
 		//actions.breakBlock(v);
 	}
 	
+	public void Update2(){
+		if(target == null){
+			if(!targets.isEmpty())
+				target = targets.remove(0);
+			else{
+				this.finished = true;
+				return;
+			}
+		}else if(world.getBlockAt(target.x, target.y, target.z).isEmpty()){
+			interaction = null;
+			target = null;
+			return;
+		}
+		
+		if(interaction == null && target != null ){
+			if(target.y < -1000){
+				target = null;
+				return;
+			}
+			Block block = world.getBlockAt(target.x, target.y, target.z);
+			interaction =  actions.newInteration(block, this.m_NPC.getBukkitEntity().getItemInHand());
+		}
+		
+		if(interaction != null){
+			//the block is unbreakable
+			if(interaction.getDuration() < 0){
+				target = null;
+				interaction = null;
+				return;
+			}
+			interaction.Update();
+			if(interaction.done()){
+				actions.breakBlock(target);
+				target = null;
+				interaction = null;
+			}
+		}
+	}
+	
+	public boolean Done2(){return targets.isEmpty();}
+	
 	private boolean lastCheck(){
 		Vector3 pos = Vector3.ZERO();
 		Messaging.log("lastCheck ");
 		do{
 			//Messaging.log("lop");
 			target = getNextPos( pos.x, pos.y, pos.z );
-			
+			Messaging.log(target.toString());
 			if(target != null){
-				Messaging.log("haveTarget");
-				if(target.y <= -10000 ){
+				if(target.y <= -1000 ){
+					
 					return true;
 				}
 				
@@ -176,6 +220,10 @@ public class CleanTask extends Task {
 			}
 		}while(target == null);
 		return true;
+	}
+	
+	public void addTarget(Vector3 pos){
+		targets.add(pos);
 	}
 	
 	public String toString(){

@@ -41,7 +41,6 @@ public class WorldManipulationAction extends Action{
 	}
 	
 	public PLACE_BLOCK_ERR placeBlock( int blockid, Vector3 pos ){
-		//Chunk chunk = world.getChunkAt(npc.getBukkitEntity().getLocation());
 		Block destBlock = world.getBlockAt(pos.x, pos.y, pos.z);
 		
 		if(destBlock.isEmpty()){
