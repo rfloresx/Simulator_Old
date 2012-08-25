@@ -9,7 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class Animator {
-	private final PathNPC npc;
+	private final CraftSP npc;
 
 	public enum Animation {
 		ACT_HURT,
@@ -20,8 +20,8 @@ public class Animator {
 		UNSNEAK,
 	}
 
-	public Animator(PathNPC pathNPC) {
-		this.npc = pathNPC;
+	public Animator(CraftSP player) {
+		this.npc = player;
 	}
 
 	public void performAnimation(Animation animation) {
@@ -54,7 +54,6 @@ public class Animator {
 		Packet17EntityLocationAction packet17 = new Packet17EntityLocationAction(
 				npc, 0, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
-		// getPlayer().teleport(loc);
 		PacketUtils.sendPacketNearby(getPlayer().getLocation(), 64, packet17,
 				getPlayer());
 	}

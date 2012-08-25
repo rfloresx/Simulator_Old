@@ -13,7 +13,7 @@ import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.inventory.ItemStack;
 
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.util.Vector3;
 
 public class WorldManipulationAction extends Action{
@@ -22,7 +22,7 @@ public class WorldManipulationAction extends Action{
 	
 	private World world;
 	
-	public WorldManipulationAction(PathNPC npc) {
+	public WorldManipulationAction(CraftSP npc) {
 		super(npc);
 		world = npc.getBukkitEntity().getWorld();
 	}

@@ -10,7 +10,7 @@ import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.util.Messaging;
 import com.github.otrebor4.simulator.util.Timer;
 
@@ -20,21 +20,21 @@ public class CollectItem extends Action {
 	float range;
 	static double MIN_DIST = 1.75;
 	static Timer delay = new Timer();
-	public CollectItem(PathNPC npc, List<Integer> targetIds, float range) {
+	public CollectItem(CraftSP npc, List<Integer> targetIds, float range) {
 		super(npc);
 		ids = targetIds;
 		all = false;
 		this.range = range;
 	}
 	
-	public CollectItem(PathNPC npc, List<Integer> targetIds, float range, boolean all) {
+	public CollectItem(CraftSP npc, List<Integer> targetIds, float range, boolean all) {
 		super(npc);
 		ids = targetIds;
 		this.all = all;
 		this.range = range;
 	}
 	
-	public CollectItem(PathNPC npc, float range){
+	public CollectItem(CraftSP npc, float range){
 		super(npc);
 		this.range = range;
 		this.all = true;
@@ -66,7 +66,7 @@ public class CollectItem extends Action {
 		}
 	}
 	
-	public static void Update(PathNPC npc){
+	public static void Update(CraftSP npc){
 		Item targ = null;
 		targ = getClosestItem(npc, 5);
 		if(targ != null){
@@ -93,7 +93,7 @@ public class CollectItem extends Action {
 		return false;
 	}
 	
-	private static void collectItem(Item obj, PathNPC npc){
+	private static void collectItem(Item obj, CraftSP npc){
 		if(delay.getTimeSecons() < 1)
 			return;
 		delay.start();
@@ -106,7 +106,7 @@ public class CollectItem extends Action {
 		}
 	}
 	
-	public static Item getClosestItemOfIds(PathNPC npc, float range, List<Integer> ids){
+	public static Item getClosestItemOfIds(CraftSP npc, float range, List<Integer> ids){
 		if(npc == null)
 			return null;
 		Location l = npc.getBukkitEntity().getLocation();
@@ -127,7 +127,7 @@ public class CollectItem extends Action {
 		return item;
 	}
 	
-	public static Item getClosestItemOf(PathNPC npc, float range, int itemId){
+	public static Item getClosestItemOf(CraftSP npc, float range, int itemId){
 		Location l = npc.getBukkitEntity().getLocation();
 		Item item = null;
 		List<Item> list = getItemOnRange(npc, range);
@@ -142,7 +142,7 @@ public class CollectItem extends Action {
 		return item;
 	}
 	
-	public static List<Item> getItemOnRange(PathNPC npc, float range){
+	public static List<Item> getItemOnRange(CraftSP npc, float range){
 		if(npc == null)
 			return null;
 		Location l = npc.getBukkitEntity().getLocation();
@@ -157,7 +157,7 @@ public class CollectItem extends Action {
 		return items;
 	}
 	
-	public static Item getClosestItem(PathNPC npc, float range){
+	public static Item getClosestItem(CraftSP npc, float range){
 		if(npc == null)
 			return null;
 		Location l = npc.getBukkitEntity().getLocation();

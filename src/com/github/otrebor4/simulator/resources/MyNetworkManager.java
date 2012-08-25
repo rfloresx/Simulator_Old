@@ -9,7 +9,7 @@ import net.minecraft.server.NetHandler;
 import net.minecraft.server.NetworkManager;
 import net.minecraft.server.Packet;
 
-public class NPCNetworkManager extends NetworkManager {
+public class MyNetworkManager extends NetworkManager {
 	private static Field THREAD_STOPPER;
 	
 	static{
@@ -21,7 +21,7 @@ public class NPCNetworkManager extends NetworkManager {
 		}
 	}
 	
-	public NPCNetworkManager(Socket paramSocket, String paramString,
+	public MyNetworkManager(Socket paramSocket, String paramString,
 			NetHandler paramNetHandler, PrivateKey key) throws IOException {
 		
 		super(paramSocket, paramString, paramNetHandler, key);

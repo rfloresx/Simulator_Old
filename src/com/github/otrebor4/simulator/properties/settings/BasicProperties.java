@@ -79,7 +79,6 @@ public class BasicProperties {
 		saveInventory(SPSettings.getData(SP.getName()), SP.getBukkitEntity().getInventory());
 	}
 	
-	
 	public static SimulatedPlayer loadState( String name ){
 		MinecraftServer server = getMinecraftServer( Bukkit.getServer() );
 		//load data from file

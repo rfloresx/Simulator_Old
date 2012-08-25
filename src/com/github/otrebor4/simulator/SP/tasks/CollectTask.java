@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.github.otrebor4.simulator.SP.actinions.Action;
 import com.github.otrebor4.simulator.SP.actinions.CollectItem;
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 
 public class CollectTask extends Task{
 
-	public CollectTask(PathNPC npc) {
+	public CollectTask(CraftSP npc) {
 		super(npc);
 		action = getActions(npc);
 	}
@@ -19,7 +19,7 @@ public class CollectTask extends Task{
 		super.Update();
 	}
 	
-	public List<Action> getActions( PathNPC npc){
+	public List<Action> getActions( CraftSP npc){
 		List<Action> actions = new LinkedList<Action>();
 		actions.add( new CollectItem(npc,10));
 		return actions;

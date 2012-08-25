@@ -17,18 +17,10 @@ import net.minecraft.server.Packet28EntityVelocity;
 import net.minecraft.server.Packet3Chat;
 import net.minecraft.server.Packet51MapChunk;
 
-public class NPCNetHandler extends NetServerHandler {
-    public NPCNetHandler(MinecraftServer minecraftserver, EntityPlayer entityplayer, NetworkManager netMgr) {
+public class MyNetHandler extends NetServerHandler {
+    public MyNetHandler(MinecraftServer minecraftserver, EntityPlayer entityplayer, NetworkManager netMgr) {
         super(minecraftserver, netMgr, entityplayer);
     }
-
-//    @Override
- //   public boolean a() {
- //   	return false;
- //   }
-
-//    public void sendMessage(String s) {
-//    }
 
     @Override
     public void a(String s, Object[] aobject) {

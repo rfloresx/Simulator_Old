@@ -20,7 +20,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import com.github.otrebor4.simulator.SP.SimulatedPlayerManager;
 import com.github.otrebor4.simulator.resources.SimulatorNPC;
-import com.github.otrebor4.simulator.util.Messaging;
 
 public class SimulatorListener implements Listener {
 	
@@ -36,7 +35,6 @@ public class SimulatorListener implements Listener {
         SimulatorNPC npc = SimulatedPlayerManager.get(event.getEntity());
         if (npc != null) {
             npc.callDamageEvent(event);
-            Messaging.log("Damage to " + npc.getName());
         }
         if (event instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent e = (EntityDamageByEntityEvent) event;
@@ -46,7 +44,6 @@ public class SimulatorListener implements Listener {
                     npc.callLeftClick(player, npc);
                 }
             } else if (e.getDamager() instanceof Player) {
-              //  CreatureTask.onDamage(e.getEntity(), event);
             }
         }
     }
@@ -61,10 +58,7 @@ public class SimulatorListener implements Listener {
     public void onEntityDeath(EntityDeathEvent event) {
 		SimulatorNPC npc = SimulatedPlayerManager.get(event.getEntity());
         if (npc != null) {
-        	Messaging.log("Death to " + npc.getName());
         	SimulatedPlayerManager.reSpawn(npc);
-            //npc.callDeathEvent(event);
-           // Messaging.log("Death to " + npc.getName());
         }
 	}
 		
@@ -105,7 +99,7 @@ public class SimulatorListener implements Listener {
 	
 	@EventHandler (ignoreCancelled = true)
 	public void onItemSpawnEvent( ItemSpawnEvent event ){
-		Messaging.log("ItemSpawnEvent");
+		
 	}
 	 
 }

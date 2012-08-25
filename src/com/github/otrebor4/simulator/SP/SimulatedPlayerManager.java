@@ -10,16 +10,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import com.github.otrebor4.simulator.Settings;
-import com.github.otrebor4.simulator.events.NPCRemoveEvent.NPCRemoveReason;
 import com.github.otrebor4.simulator.properties.settings.BasicProperties;
-import com.github.otrebor4.simulator.resources.CraftNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.resources.SimulatorNPC;
 import com.github.otrebor4.simulator.util.Messaging;
 import com.google.common.collect.MapMaker;
 
 public class SimulatedPlayerManager implements Runnable {
 	private final static Map<Integer, SimulatorNPC> simulator = new MapMaker().makeMap();
-	//private final static Map<Integer, String> ids = new MapMaker().makeMap();
 	
 	private final static List<SimulatorNPC> spawner = new LinkedList<SimulatorNPC>();
 	
@@ -73,17 +71,11 @@ public class SimulatedPlayerManager implements Runnable {
         if (simulator.get(npc.getPlayer().getEntityId()) == null)
             return;
         SimulatorNPC SP = simulator.remove(npc.getPlayer().getEntityId());
-        Spawner.despawnNPC( SP, NPCRemoveReason.UNLOAD );
-        //SP.resotreValues();
-        
+        Spawner.despawnNPC( SP );
+  
         spawner.add(SP);
         if(delay <= 0)
         	delay = 25;
-        //Location dest = SP.getSpawnPoint();
-        
-        //spawnSimulator(SP.getHandleSP(), dest, SP.getPlayer().getEntityId()  );
-        
-        
     }
 	
 	public static SimulatorNPC get(Entity entity) {
@@ -91,11 +83,10 @@ public class SimulatedPlayerManager implements Runnable {
 			return null;
 		net.minecraft.server.Entity mcEntity = ((CraftEntity) entity)
 				.getHandle();
-		if (mcEntity instanceof CraftNPC) {
-			SimulatorNPC npc = ((CraftNPC) mcEntity).npc;
+		if (mcEntity instanceof CraftSP) {
+			SimulatorNPC npc = ((CraftSP) mcEntity).npc;
 			if (npc == null)
 				return null;
-			// Compare object references to eliminate conflicting UIDs.
 			if (simulator.get(npc.getPlayer().getEntityId()) == npc) {
 				return npc;
 			}

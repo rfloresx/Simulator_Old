@@ -9,6 +9,11 @@ public class Vector3 {
 		this.z = z;
 	}
 	
+	public Vector3(int val){
+		y=z=x=val;
+		
+	}
+	
 	public static Vector3 ZERO(){
 		return new Vector3(0,0,0);
 	}

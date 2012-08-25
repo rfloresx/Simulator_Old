@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class NPCSocket extends Socket {
+public class SimulatorSocket extends Socket {
 
 	@Override
 	public InputStream getInputStream() {

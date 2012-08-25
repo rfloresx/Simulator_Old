@@ -6,7 +6,7 @@ import java.util.Random;
 
 import com.github.otrebor4.simulator.SP.actinions.Action;
 import com.github.otrebor4.simulator.SP.actinions.Walk;
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.util.Messaging;
 import com.github.otrebor4.simulator.util.Rand;
 import com.github.otrebor4.simulator.util.Vector2;
@@ -15,13 +15,13 @@ import com.github.otrebor4.simulator.util.Vector2;
 public class ExploreTask extends Task{
 	double TaskTime;
 	
-	public ExploreTask( PathNPC npc ){
+	public ExploreTask( CraftSP npc ){
 		super(npc);
 		this.action = getAction( npc );
 		TaskTime = Rand.random.nextInt(2500) + 1000;
 	}
 	
-	public List<Action> getAction( PathNPC npc){
+	public List<Action> getAction( CraftSP npc){
 		List<Action> act = new LinkedList<Action>();
 		Random rand = Rand.random;
 		int x = -2;

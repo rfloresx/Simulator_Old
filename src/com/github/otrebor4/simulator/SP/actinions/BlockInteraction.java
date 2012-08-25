@@ -5,7 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.otrebor4.simulator.resources.Animator.Animation;
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.util.Tools;
 
 public class BlockInteraction{
@@ -15,13 +15,13 @@ public class BlockInteraction{
 	ItemStack tool;
 	boolean finish = false;
 	Location targ;
-	PathNPC npc;
+	CraftSP npc;
 	static float MIN_DIST = 5f;
 	Action action;
 	long starTime = 0;
 	boolean started = false;
 	
-	public BlockInteraction(Block block, ItemStack item, PathNPC npc){
+	public BlockInteraction(Block block, ItemStack item, CraftSP npc){
 		//net.minecraft.server.Block.byId[block.getTypeId()].a( npc );
 		targ = block.getLocation();
 		duration = Tools.getDurability( block.getTypeId(), item.getTypeId());

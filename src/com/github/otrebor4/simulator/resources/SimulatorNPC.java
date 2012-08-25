@@ -1,6 +1,9 @@
 package com.github.otrebor4.simulator.resources;
 
+import java.util.Objects;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftServer;
@@ -13,69 +16,54 @@ import org.bukkit.inventory.PlayerInventory;
 import com.github.otrebor4.simulator.SP.SimulatedPlayer;
 import com.github.otrebor4.simulator.resources.Animator.Animation;
 import com.github.otrebor4.simulator.util.Messaging;
-import com.github.otrebor4.simulator.waypoints.WaypointPath;
 
 
-public class SimulatorNPC extends NPC {
+public class SimulatorNPC {
 	private final SimulatedPlayer mcEntity;
-    private NPCData npcdata = new NPCData();
+    private Data data = new Data();
     private double balance;
-    private boolean paused;
-    private WaypointPath waypoints = new WaypointPath();
-	
+	private final String name;
+	private final int UID;
 
 	public SimulatorNPC(SimulatedPlayer eh, int uID, String name) {
-		super(uID, name);
+
+		this.name = ChatColor.stripColor(name);
+		this.UID = uID;
 		this.mcEntity = eh;
         this.mcEntity.npc = this;
 	}
- /*  public void callDamageEvent(EntityDamageEvent event) {
-        if (types.size() == 0) {
-            event.setCancelled(true);
-            return;
-        }
-        for (CitizensNPC type : types.values()) {
-            type.onDamage(event);
-        }
-    }
 
-    public void callDeathEvent(EntityDeathEvent event) {
-        for (CitizensNPC type : types.values()) {
-            type.onDeath(event);
-        }
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    public void callLeftClick(Player player, HumanNPC npc) {
-        for (CitizensNPC type : types.values()) {
-            type.onLeftClick(player, npc);
-        }
-    }
+	public int getUID() {
+		return this.UID;
+	}
 
-    public void callRightClick(Player player, HumanNPC npc) {
-        for (CitizensNPC type : types.values()) {
-            type.onRightClick(player, npc);
-        }
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(UID);
+	}
 
-    public void callTargetEvent(EntityTargetEvent event) {
-        for (CitizensNPC type : types.values()) {
-            type.onTarget(event);
-        }
-    }
-*/
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		SimulatorNPC other = (SimulatorNPC) obj;
+		return UID == other.UID;
+	}
+
     public void doTick() {
-        //this.mcEntity.mobMoveTick();
     	this.mcEntity.Update();
-        //this.mcEntity.applyGravity();
     }
 
     public double getBalance() {
         return this.balance;
-    }
-
-    public Location getBaseLocation() {
-        return this.waypoints.current() != null ? this.waypoints.current()
-                .getLocation() : this.npcdata.getLocation();
     }
 
     public int getChunkX() {
@@ -90,7 +78,7 @@ public class SimulatorNPC extends NPC {
     	return this.mcEntity;
     }
     
-    public CraftNPC getHandle() {
+    public CraftSP getHandle() {
         return this.mcEntity;
     }
 
@@ -106,55 +94,18 @@ public class SimulatorNPC extends NPC {
         return this.getPlayer().getLocation();
     }
 
-    public NPCData getNPCData() {
-        return npcdata;
-    }
-
-    public String getOwner() {
-        return this.npcdata.getOwner();
+    public Data getData() {
+        return data;
     }
 
     public Player getPlayer() {
         return this.mcEntity.getBukkitEntity();
     }
-/*
-    @SuppressWarnings("unchecked")
-    public <T> T getType(String type) {
-        return (T) this.types.get(type);
-    }
-*/
-    public WaypointPath getWaypoints() {
-        if (waypoints == null) {
-            this.waypoints = new WaypointPath();
-        }
-        return this.waypoints;
-    }
 
-    public World getWorld() {
-        return this.getPlayer().getWorld();
-    }
-
-    public boolean isPaused() {
-        return this.paused;
-    }
-/*
-    public boolean isType(String type) {
-        return this.types.get(type) != null;
-    }
-*/
     public void performAction(Animation action) {
         this.mcEntity.performAction(action);
     }
-/*
-    public void registerType(String type) {
-        this.types.put(type, NPCTypeManager.getType(type).getInstance());
-    }
 
-    public void removeType(String type) {
-        this.types.remove(type);
-        PropertyManager.save(type, this);
-    }
-*/
     public void setBalance(double balance) {
         this.balance = balance;
     }
@@ -163,12 +114,8 @@ public class SimulatorNPC extends NPC {
         this.getPlayer().setItemInHand(item);
     }
 
-    public void setNPCData(NPCData npcdata) {
-        this.npcdata = npcdata;
-    }
-
-    public void setPaused(boolean paused) {
-        this.paused = paused;
+    public void setData(Data data) {
+        this.data = data;
     }
 
     public void teleport(double x, double y, double z, float yaw, float pitch) {
@@ -176,39 +123,28 @@ public class SimulatorNPC extends NPC {
     }
 
     public void teleport(Location loc) {
-        boolean multiworld = loc.getWorld() != this.getWorld();
+        boolean multiworld = loc.getWorld() != this.getPlayer().getWorld();
         this.getPlayer().teleport(loc);
         if (multiworld) {
             ((CraftServer) Bukkit.getServer()).getHandle().players
                     .remove(this.mcEntity);
         }
     }
-/*
-    public Collection<CitizensNPC> types() {
-        return this.types.values();
+    
+    public World getWorld(){
+    	return this.getPlayer().getWorld();
     }
- */
-	public void callDamageEvent(EntityDamageEvent event) {
 
-		//event.setCancelled(true);
+	public void callDamageEvent(EntityDamageEvent event) {
 		
 	}
+	
 	public void callLeftClick(Player player, SimulatorNPC npc) {
 
 	}
 	
 	public void callDeathEvent(EntityDeathEvent event) {
-		//SimulatedPlayerManager.reSpawn( this);
-		/*Location dest = this.getPlayer().getBedSpawnLocation();
-		if (dest == null)
-			dest = this.getPlayer().getWorld().getSpawnLocation();
-		if(dest != null){
-			this.teleport( dest);
-			this.getHandle().dead = false;
-			this.getHandle().setHealth( this.getHandle().getMaxHealth());
-			this.mcEntity.stopActions();
-		}
-		*/
+
 	}
 	
 	public Location getSpawnPoint(){

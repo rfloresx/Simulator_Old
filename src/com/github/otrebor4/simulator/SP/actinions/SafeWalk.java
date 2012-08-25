@@ -5,11 +5,11 @@ import java.util.Collection;
 import org.bukkit.Location;
 import org.bukkit.entity.Monster;
 
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.util.Vector2;
 
 public class SafeWalk extends Action{
-	public SafeWalk(PathNPC npc) {
+	public SafeWalk(CraftSP npc) {
 		super(npc);
 	}
 

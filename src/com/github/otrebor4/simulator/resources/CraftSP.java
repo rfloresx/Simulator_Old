@@ -1,6 +1,7 @@
 package com.github.otrebor4.simulator.resources;
 
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,25 +11,25 @@ import net.minecraft.server.DamageSource;
 import net.minecraft.server.Entity;
 import net.minecraft.server.EntityHuman;
 import net.minecraft.server.EntityPlayer;
+import net.minecraft.server.EnumGamemode;
 import net.minecraft.server.ItemInWorldManager;
 import net.minecraft.server.MathHelper;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.NetHandler;
+import net.minecraft.server.NetworkManager;
 import net.minecraft.server.PathEntity;
 import net.minecraft.server.Vec3D;
 import net.minecraft.server.World;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.event.CraftEventFactory;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
-import org.bukkit.inventory.ItemStack;
 
 
 
@@ -39,7 +40,7 @@ import com.github.otrebor4.simulator.util.Messaging;
 import com.github.otrebor4.simulator.util.Timer;
 import com.github.otrebor4.simulator.util.Vector3;
 
-public class PathNPC extends EntityPlayer {
+public class CraftSP extends EntityPlayer {
     public SimulatorNPC npc;
     private PathEntity path;
     protected Location dest;
@@ -47,7 +48,6 @@ public class PathNPC extends EntityPlayer {
     protected final Animator animations = new Animator(this);
     protected Entity targetEntity;
     protected boolean targetAggro = false;
-    protected boolean randomPather = false;
     protected boolean autoPathToTarget = true;
     protected float pathingRange = 16;
 
@@ -56,23 +56,36 @@ public class PathNPC extends EntityPlayer {
     private int pathTickLimit = -1;
     private int stationaryTicks = 0;
     private int stationaryTickLimit = -1;
-    private int attackTimes = 0;
-    private int attackTimesLimit = -1;
     private int prevX, prevY, prevZ;
-    private AutoPathfinder autoPathfinder;
     private static final double JUMP_FACTOR = 0.07D;
     protected int my_delay = 0;
     protected Vector3 oldDirection;
     Timer timer = new Timer();
     
-    public PathNPC(MinecraftServer minecraftserver, World world, String s, ItemInWorldManager iteminworldmanager) {
-        this(minecraftserver, world, s, iteminworldmanager, new MinecraftAutoPathfinder());
-    }
-
-    public PathNPC(MinecraftServer minecraftserver, World world, String s, ItemInWorldManager iteminworldmanager,
-            AutoPathfinder autoPathfinder) {
+    public CraftSP(MinecraftServer minecraftserver, World world, String s, ItemInWorldManager iteminworldmanager) {
         super(minecraftserver, world, s, iteminworldmanager);
-        this.autoPathfinder = autoPathfinder;
+        
+        iteminworldmanager.setGameMode(EnumGamemode.SURVIVAL  );
+
+        SimulatorSocket socket = new SimulatorSocket();
+        NetworkManager netMgr = null;
+		try {
+			netMgr = new MyNetworkManager(socket, "npc mgr", new NetHandler() {
+				@Override
+				public boolean a() {
+
+					return false;
+				}
+			}, server.E().getPrivate());
+		} catch (IOException e) {	}
+		
+		if(netMgr != null){
+			this.netServerHandler = new MyNetHandler(minecraftserver, this, netMgr);
+        	netMgr.a(this.netServerHandler);
+		}
+        try {
+            socket.close();
+        } catch (IOException ex) {}
     }
     
     public void Update(){
@@ -86,24 +99,9 @@ public class PathNPC extends EntityPlayer {
             --this.noDamageTicks; 
     }
 
-    public boolean isAutoPathfinder(){
-    	return autoPathfinder != null;
-    }
-    
-    public void setAutoPathfinder(boolean toggle){
-    	if(toggle){
-    		autoPathfinder = MinecraftAutoPathfinder.INSTANCE;
-    	}else
-    		autoPathfinder = null;
-    }
-    
     private void attackEntity(Entity entity) {
-    
-        this.attackTicks = 20; // Possibly causes attack spam (maybe higher?).
+        this.attackTicks = 20;
         if (isHoldingBow() && distance(entity) >= Settings.getDouble("MinArrowRange")) {
-          //  NPCManager.faceEntity(this.npc, entity.getBukkitEntity());
-
-            // make inaccuracies.
             boolean up = this.random.nextBoolean();
             this.yaw += this.random.nextInt(5) * (up ? 1 : -1);
 
@@ -118,12 +116,6 @@ public class PathNPC extends EntityPlayer {
         }
         hasAttacked = true;
 
-        if (this.attackTimesLimit == -1)
-            return;
-        ++this.attackTimes;
-        if (this.attackTimes >= this.attackTimesLimit) {
-            cancelTarget();
-        }
     }
 
     PathEntity createPathEntity(int x, int y, int z) {
@@ -143,8 +135,7 @@ public class PathNPC extends EntityPlayer {
         Vec3D vec3d = path.a(this);
         double length = (this.width * 2.0F);
         while (vec3d != null && vec3d.d(this.locX, vec3d.b, this.locZ) < length * length) {
-            this.path.a(); // Increment path index.
-            // Is path finished?
+            this.path.a();
             if (this.path.b()) {
                 vec3d = null;
                 cancelPath();
@@ -193,11 +184,10 @@ public class PathNPC extends EntityPlayer {
                 jump();
             }
 
-            // Walk. this.br
+            // Walk.
             if(this.isSprinting()){ this.bs = 1.6f; }
             else{ this.bs = 7.0f;}
             
-           // Messaging.log( this.br + " " + this.bs);
             this.e(this.br, this.bs);
         }
         if (this.positionChanged && !this.pathFinished()) {
@@ -214,17 +204,7 @@ public class PathNPC extends EntityPlayer {
     	if(block.getRelative(BlockFace.DOWN).getType() == Material.AIR){
     		this.onGround = false;
     	}
-    	//else{
-    	//	this.onGround = true;
-    	//}
-    	
-    	//if(!this.onGround){
-    		//Messaging.log("onAir");
-    		//Location loc= this.getBukkitEntity().getLocation();
-    		//this.move( loc.getX(), loc.getY() - 0.5D, loc.getZ());
-    		//this.motY -= 0.1D;
-    		this.e(this.br, 0);
-    	//}
+    	this.e(this.br, 0);
     }
     
     public void applySoffocation(){
@@ -261,23 +241,7 @@ public class PathNPC extends EntityPlayer {
     		}
     	}
     }
-    
-    protected void deathEvent(){
-    	this.die();
-    	Messaging.log("calling death evet");
-    	ItemStack [] items = this.getBukkitEntity().getInventory().getContents();
-    	//org.bukkit.World world = this.getBukkitEntity().getWorld();
-    	List<ItemStack> list = new LinkedList<ItemStack>();
-		for(ItemStack item : items){
-			if(item != null){
-				list.add(item);
-				this.getBukkitEntity().getInventory().remove(item);
-			}
-		}
-		this.getBukkitEntity().getInventory().clear();
-		Bukkit.getServer().getPluginManager().callEvent( CraftEventFactory.callEntityDeathEvent(this.getBukkitEntity().getHandle(), list ));
-    }
-    
+
     private boolean isHoldingBow() {
         return getBukkitEntity().getItemInHand() != null && getBukkitEntity().getItemInHand().getType() == Material.BOW;
     }
@@ -298,18 +262,16 @@ public class PathNPC extends EntityPlayer {
     protected void jump() {
         if (this.onGround) {
             this.motY = 0.42D + JUMP_FACTOR;
-            // Augment defaults to actually get over a block.
         }
     }
     
     protected void Swim(){
+    	//TODO:need fix.
     	org.bukkit.World world = this.getBukkitEntity().getWorld();
     	Block block = world.getBlockAt(this.getBukkitEntity().getLocation());
     	if(block.getRelative(BlockFace.UP).isLiquid() || block.isLiquid() ){
     		this.motY = 0.42D;
     	}
-    	
-    	//this.motY = 0.42D;
     }
     
     public void moveTick() {
@@ -319,9 +281,9 @@ public class PathNPC extends EntityPlayer {
             return;
         }
         hasAttacked = false;
-        if (randomPather) {
-            takeRandomPath();
-        }
+      
+        takeRandomPath();
+        
         updateTarget();
         if (this.path != null || this.targetEntity != null) {
             updatePathingState();
@@ -332,46 +294,8 @@ public class PathNPC extends EntityPlayer {
                 handleMove(vector);
             }
         }
-       // if (this.attackTicks > 0)
-       //     --this.attackTicks;
-       // if (this.noDamageTicks > 0)
-       //    --this.noDamageTicks; // Update entity
     }
    
-    public void mobMoveTick(){
-        if (this.dead) {
-            if (this.targetEntity != null || this.path != null)
-                cancelTarget();
-            return;
-        }
-        hasAttacked = false;
-        my_delay -= 1;
-        if(this.pathFinished() || my_delay <= 0){
-        	updateRandomPath();
-        	my_delay = random.nextInt() % 100;
-        }
-        
-        if (this.path != null || this.targetEntity != null) {
-            updatePathingState();
-        }
-        if (this.path != null) {
-            Vec3D vector = getPathVector();
-            if (vector != null) {
-                handleMove(vector);
-            }
-        }
-
-        if (this.attackTicks > 0)
-            --this.attackTicks;
-        if (this.noDamageTicks > 0)
-            --this.noDamageTicks; // Update entity
-        if(!isaPlayerInRange(256)){
-        	this.dead = true;
-        	//Messaging.log("Remobing" + this.toString());
-        }
-        
-    }
-  
     public void MoveToDirection(int x, int y){
     	if(oldDirection == null)
     		oldDirection = new Vector3(x,0,y);
@@ -448,16 +372,10 @@ public class PathNPC extends EntityPlayer {
     public void cancelTarget() {
         this.targetEntity = null;
         this.targetAggro = false;
-        this.attackTimes = 0;
-        this.attackTimesLimit = -1;
         cancelPath();
     }
 
     public void setTarget(LivingEntity entity, boolean aggro, int maxTicks, int maxStationaryTicks, double range) {
-      //  if (Plugins.worldGuardEnabled() && Settings.getBoolean("DenyBlockedPVPTargets") && entity instanceof Player) {
-     //       if (!Plugins.worldGuard.getGlobalRegionManager().allows(DefaultFlag.PVP, entity.getLocation()))
-     //           return;
-     //   }
         this.targetEntity = ((CraftLivingEntity) entity).getHandle();
         this.targetAggro = aggro;
         this.pathTickLimit = maxTicks;
@@ -477,14 +395,6 @@ public class PathNPC extends EntityPlayer {
         return pathFinished();
     }
 
-    private void takeRandomPath() {
-        if (!hasAttacked && this.targetEntity != null && (this.path == null || this.random.nextInt(20) == 0)) {
-            this.path = this.world.findPath(this, this.targetEntity, pathingRange, true, false, false, true);
-            this.dest = this.targetEntity.getBukkitEntity().getLocation();
-        } else if (!hasAttacked && this.path == null)
-            autoPathfinder.find(this);
-    }
-   
     public boolean isaPlayerInRange(double range){
     	if(this.world.findNearbyPlayer(this, range) != null)
     		return true;
@@ -509,9 +419,6 @@ public class PathNPC extends EntityPlayer {
         ++pathTicks;
         if ((pathTickLimit != -1 && pathTicks >= pathTickLimit)
                 || (stationaryTickLimit != -1 && stationaryTicks >= stationaryTickLimit)) {
-           //  if (dest != null && !(this instanceof CreatureNPC)) {
-           //  this.getBukkitEntity().teleport(dest);
-           // }
             cancelPath();
         }
         prevX = loc.getBlockX();
@@ -545,47 +452,16 @@ public class PathNPC extends EntityPlayer {
             this.attackEntity(this.targetEntity);
         }
     }
-
-    public void evilUpdateTarget(){
-    	if (!this.hasAttacked && this.targetEntity != null && autoPathToTarget) {
-            this.path = this.world.findPath(this, this.targetEntity, pathingRange, true, false, false, true);
-            this.dest = this.targetEntity.getBukkitEntity().getLocation();
-        }
-        if (targetEntity == null){
-        	this.targetClosestPlayer(true, 8);
-        	return;
-            
-        }
-        if (this.targetEntity.dead || !targetEntity.world.equals(this.world)){// ||
-        //		Towny.isInTownBlock(targetEntity.getBukkitEntity().getLocation())) {
-            cancelTarget();
-            return;
-        }
-        
-        if( distance(this.targetEntity) > 16){
-        	this.cancelTarget();
-        	return;
-        }
-        
-    //    NPCManager.faceEntity(this.npc, targetEntity.getBukkitEntity());
-        if (!targetAggro)
-            return;
-        if (isWithinAttackRange(this.targetEntity, distance(this.targetEntity))) {
-            this.attackEntity(this.targetEntity);
-        }
-    }
     
-    private void updateRandomPath(){
+    private void takeRandomPath(){
     	if( this.hasAttacked || this.targetEntity != null )
     		return;
     	Location loc = this.bukkitEntity.getLocation();
     	int randx = (random.nextInt() % 32) - 16 + loc.getBlockX();
     	int randy = (random.nextInt() % 32) - 16 + loc.getBlockY();
     	int randz = (random.nextInt() % 32) - 16 + loc.getBlockZ();
-    	
-    	//PathEntity randPath = createPathEntity( randx, randy, randz );
-    	this.path = createPathEntity( randx, randy, randz ); //this.world.findPath(this, randPath, 16, true, false, false, true);
-    	 
+    
+    	this.path = createPathEntity( randx, randy, randz );
     	this.dest = new Location( this.world.getWorld(), randx, randy, randz );
     
     }
@@ -619,11 +495,11 @@ public class PathNPC extends EntityPlayer {
     }
     
     private void setPathTo(int x, int y, int z){
-    	this.path = createPathEntity( x, y, z ); //this.world.findPath(this, randPath, 16, true, false, false, true);
+    	this.path = createPathEntity( x, y, z );
     	this.dest = new Location( this.world.getWorld(), x, y, z );
     }
     
-    public static List<Monster> getMonsterIn( PathNPC npc, float range ){
+    public static List<Monster> getMonsterIn( CraftSP npc, float range ){
 		Collection<Monster> list = npc.getBukkitEntity().getWorld().getEntitiesByClass( Monster.class );
 		List<Monster> m_list = new LinkedList<Monster>();
 		Location pos = npc.getBukkitEntity().getLocation();
@@ -679,16 +555,13 @@ public class PathNPC extends EntityPlayer {
         }
         yaw -= 90;
         boolean byaw = false, bpitch = false;
-        //Messaging.log( "yaw is " + yaw + " pitch is " + pitch);
-        //Messaging.log( "And yaw " + npc.getHandle().yaw + " Pitch is " + npc.getHandle().pitch );
-        
+       
         if(npc.getHandle().yaw <= yaw + 10 && npc.getHandle().yaw >= yaw - 10 ){
         	byaw = true;
         }
         if( npc.getHandle().pitch <= pitch + 10 && npc.getHandle().pitch >= pitch - 10 ){
         	bpitch = true;
         }
-        //Messaging.log("yaw " + byaw + " pitch " + bpitch );
         return byaw && bpitch;
     }
 
@@ -727,10 +600,17 @@ public class PathNPC extends EntityPlayer {
 			boolean flag = (loc1.getBlockX() == loc2.getBlockX() &&
 					loc1.getBlockY() == loc2.getBlockY() &&
 					loc1.getBlockZ() == loc2.getBlockZ() );
-			//Messaging.log(flag);
 			
 			return flag;
 		}
 		return false;
 	}
+	
+	public LivingEntity getTarget() {
+        return this.targetEntity == null ? null : ((LivingEntity) this.targetEntity.getBukkitEntity());
+    }
+
+    public boolean hasTarget() {
+        return this.targetEntity != null;
+    }
 }

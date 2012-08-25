@@ -1,15 +1,17 @@
 package com.github.otrebor4.simulator.SP.actinions;
 
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
+
+
 
 
 public class Action {
 	
-	PathNPC npc;
+	CraftSP npc;
 	float ActionTime = 0;
 	boolean finished = false;
 	
-	public Action(PathNPC npc){
+	public Action(CraftSP npc){
 		this.npc = npc;
 		
 	}

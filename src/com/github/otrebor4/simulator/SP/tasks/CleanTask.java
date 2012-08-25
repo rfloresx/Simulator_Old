@@ -6,7 +6,7 @@ import org.bukkit.block.Block;
 
 import com.github.otrebor4.simulator.SP.actinions.BlockInteraction;
 import com.github.otrebor4.simulator.SP.actinions.WorldManipulationAction;
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.util.Messaging;
 import com.github.otrebor4.simulator.util.Vector3;
 
@@ -20,7 +20,7 @@ public class CleanTask extends Task {
 	private Vector3 curPos = Vector3.ZERO();
 	
 	//TODO: dynamically set the dimension of the zone to clean
-	public CleanTask(PathNPC npc) {
+	public CleanTask(CraftSP npc) {
 		super(npc);
 		actions = new WorldManipulationAction(npc);
 		world = npc.getBukkitEntity().getWorld();

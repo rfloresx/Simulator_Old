@@ -19,24 +19,19 @@ public class BlockEntity extends Entity {
 		this.locX = loc.getX();
 		this.locY = loc.getY();
 		this.locZ = loc.getZ();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	protected void a() {
-		// TODO Auto-generated method stub
-		
+	protected void a() {	
 	}
 
 	@Override
 	protected void a(NBTTagCompound arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	protected void b(NBTTagCompound arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 	

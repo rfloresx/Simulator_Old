@@ -4,17 +4,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.otrebor4.simulator.SP.actinions.Action;
-import com.github.otrebor4.simulator.resources.PathNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 
 
 public class Task {
-	PathNPC m_NPC;
+	CraftSP m_NPC;
 	boolean finished = false;
 	protected List<Action> action = new LinkedList<Action>();
 	int priority = 0;
 	//protected Map<String, Action > action =  new MapMaker().makeMap();
 	
-	public Task( PathNPC npc){
+	public Task( CraftSP npc){
 		finished = false;
 		m_NPC = npc;
 	}

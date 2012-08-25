@@ -10,15 +10,14 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.github.otrebor4.simulator.SP.actinions.CollectItem;
 import com.github.otrebor4.simulator.SP.tasks.Task;
-import com.github.otrebor4.simulator.resources.CraftNPC;
+import com.github.otrebor4.simulator.resources.CraftSP;
 import com.github.otrebor4.simulator.util.Timer;
 
 
-public class SimulatedPlayer extends CraftNPC {
+public class SimulatedPlayer extends CraftSP {
 	private String myname;
 	private Location location;
 	private Task action;
-	//int healthDelay = 0;
 	Timer healthTimer = new Timer();
 	
 	
@@ -60,12 +59,10 @@ public class SimulatedPlayer extends CraftNPC {
 		if( healthTimer.getTimeSecons() > 5f && this.getBukkitEntity().getHealth() < this.getBukkitEntity().getMaxHealth() && this.getBukkitEntity().getFoodLevel() >= 18){
 			this.getBukkitEntity().setHealth( this.getBukkitEntity().getHealth() + 1 );
 			healthTimer.start();
-			//Messaging.log("restoring health");
 		}
 		
 		if(action == null){
 			action = (new TasksManager(this)).getTask();
-			//Messaging.log("Changing action to " + action.toString());
 			return;
 		}
 		
