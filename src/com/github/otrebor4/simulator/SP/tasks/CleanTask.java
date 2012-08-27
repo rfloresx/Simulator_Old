@@ -54,14 +54,12 @@ public class CleanTask extends Task {
 		int _y = iny;
 		int _z = inz;
 		
-		for(int x = 0 + _x; x < pos2.y - pos1.y;x ++){
-			for(int y = 0 + _y; y < pos2.z - pos1.z; y++){
-				for(int z = 0 + _z; z < pos2.x - pos1.x; z++){
+		for(int x = 0 + _x; x < pos2.x - pos1.x;x ++){
+			for(int y = 0 + _y; y < pos2.y - pos1.y; y++){
+				for(int z = 0 + _z; z < pos2.z - pos1.z; z++){
 					Vector3 v = new Vector3( pos1.x + x, pos1.y + y, pos1.z + z);
 					Block block = world.getBlockAt( v.x, v.y, v.z);
-					//m_NPC.faceTo(block.getLocation());
 					if( !block.isEmpty() && !block.isLiquid() && m_NPC.isInSight(block)){
-						//Messaging.log("breacking loc " + v.toString());
 						return v;
 					}
 				}
@@ -174,12 +172,12 @@ public class CleanTask extends Task {
 				target = null;
 				return;
 			}
+			Messaging.log(target.toString());
 			Block block = world.getBlockAt(target.x, target.y, target.z);
 			interaction =  actions.newInteration(block, this.m_NPC.getBukkitEntity().getItemInHand());
 		}
 		
 		if(interaction != null){
-			//the block is unbreakable
 			if(interaction.getDuration() < 0){
 				target = null;
 				interaction = null;
@@ -187,16 +185,20 @@ public class CleanTask extends Task {
 			}
 			interaction.Update();
 			if(interaction.done()){
+				Messaging.log("updating interation Done");
 				actions.breakBlock(target);
 				target = null;
 				interaction = null;
 			}
 		}
 	}
-	
-	public boolean Done2(){return targets.isEmpty();}
+
+	public boolean Done2(){return targets.isEmpty() && target == null;}
 	
 	private boolean lastCheck(){
+		if( isZoneClean(pos1, pos2, m_NPC.getBukkitEntity().getWorld())){
+			return true;
+		}
 		Vector3 pos = Vector3.ZERO();
 		Messaging.log("lastCheck ");
 		do{
@@ -212,6 +214,7 @@ public class CleanTask extends Task {
 				Block block = world.getBlockAt(target.x, target.y, target.z);
 				interaction =   actions.newInteration(block, this.m_NPC.getBukkitEntity().getItemInHand());
 				pos = new Vector3(target.x - pos1.x, target.y - pos1.y, target.z -pos1.z + 1 );
+				target = null;
 			}
 			if(interaction != null){
 				if(interaction.getDuration() > 0 && interaction.getDuration() < 50 ) {
@@ -229,4 +232,71 @@ public class CleanTask extends Task {
 	public String toString(){
 		return "CleanTask";
 	}
+	
+	private static void fixPos(Vector3 pos1, Vector3 pos2){
+		Vector3 pos3 = Vector3.ZERO();
+		Vector3 pos4 = Vector3.ZERO();
+		
+		if(pos1.x < pos2.x){
+			pos3.x = pos1.x;
+			pos4.x = pos2.x;
+		}
+		else{
+			pos3.x = pos2.x;
+			pos4.x = pos1.x;
+		}
+		
+		if(pos1.y < pos2.y){
+			pos3.y = pos1.y;
+			pos4.y = pos2.y;
+		}
+		else{
+			pos3.y = pos2.y;
+			pos4.y = pos1.y;
+		}
+		if(pos1.z < pos2.z){
+			pos3.z = pos1.z;
+			pos4.z = pos2.z;
+		}
+		else{				
+			pos3.z = pos2.z;
+			pos4.z = pos1.z;
+		}
+		pos1.copyValuesFrom(pos3);
+		pos2.copyValuesFrom(pos4);
+	}
+	
+	public static boolean isZoneClean(Vector3 loc1, Vector3 loc2, World world ){
+		int [] ids = { 7, 8, 9};
+		return isZoneClean( loc1, loc2, world, ids );
+	}
+	
+	public static boolean isZoneClean(Vector3 loc1, Vector3 loc2, World world, int... ids){
+		fixPos( loc1, loc2);
+		for(int x = loc1.x ; x < loc2.x ; x++){
+			for(int y = loc1.y; y < loc2.y; y++){
+				for(int z = loc1.z; z < loc2.z; z++){
+					Vector3 v = new Vector3( x,y,z);
+					Block block = world.getBlockAt( v.x, v.y, v.z);
+					if( !block.isEmpty() && !block.isLiquid()){
+						boolean ignoreid = false;
+						for(int id : ids){
+							if(id == block.getTypeId())
+								ignoreid = true;
+						}
+						
+						if(!ignoreid){
+							Messaging.log("block on " + v.toString());
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+	
+	public Vector3 getPos1(){return pos1;}
+	public Vector3 getPos2(){return pos2;}
 }

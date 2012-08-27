@@ -30,6 +30,11 @@ public class Vector3 {
 		return "(" + x + "," +y + "," + z +")";
 	}
 	
+	public void copyValuesFrom( Vector3 other){
+		this.x = other.x;
+		this.y = other.y;
+		this.z = other.z;
+	}
 	
 		
 	

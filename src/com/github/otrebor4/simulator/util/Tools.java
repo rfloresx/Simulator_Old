@@ -139,7 +139,10 @@ public class Tools {
 	}
 
 	public static float getDurability(int blockid, int toolid ){
-		float baseTime = net.minecraft.server.Block.byId[blockid].m(null, 0, 0, 0) * 1.5f;
+		float baseTime = -1;
+		net.minecraft.server.Block block = net.minecraft.server.Block.byId[blockid];
+		if(block != null)
+			baseTime = block.m(null, 0, 0, 0) * 1.5f;
 		
 		return baseTime/getDameByTool(blockid, toolid);
 	}

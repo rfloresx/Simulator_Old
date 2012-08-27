@@ -3,6 +3,7 @@ package com.github.otrebor4.simulator.SP.tasks;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import com.github.otrebor4.simulator.SP.actinions.BlockInteraction;
 import com.github.otrebor4.simulator.SP.actinions.Building;
@@ -23,6 +24,7 @@ public class BuildingTask extends Task{
 	CleanTask clean;
 	Timer timer = new Timer();
 	Building build;
+	boolean completeClean = false;
 	
 	public BuildingTask(CraftSP npc) {
 		super(npc);
@@ -32,15 +34,24 @@ public class BuildingTask extends Task{
 		Location temp = npc.getBukkitEntity().getLocation();
 		plan.SetWordPos( new Vector3(temp.getBlockX(), temp.getBlockY()-1, temp.getBlockZ() ));
 		clean = new CleanTask(npc);
-		Vector3 offset = new Vector3(4);
+		Vector3 offset = new Vector3(6, 2, 6);
 		clean.setZone2( plan.getCenterXZ(), plan.getDimension().add(offset));
 		clean.finished = false;
 	}
 	
 	@Override
 	public void Update(){
+		
+		
 		if(clean != null ){
-			if(!clean.done()){
+			if( !completeClean && !CleanTask.isZoneClean( clean.getPos1(), clean.getPos2() , world)){
+				clean.Update();
+				if(CleanTask.isZoneClean( clean.getPos1(), clean.getPos2() , world)){
+					completeClean = true;
+				}
+				return;
+			}
+			else if(!clean.done()){
 				clean.Update();
 				return;
 			}
@@ -53,10 +64,35 @@ public class BuildingTask extends Task{
 		if( build != null){
 			build.Update();
 			if(build.done()){
-				BlocksData b = plan.remobeBlockPos(build.getLoc());
-				if(b != null && actions.placeBlock( b.blockid, plan.getWorldPos( b.pos) ) != PLACE_BLOCK_ERR.NONE){
-					clean.addTarget( build.getLoc());
-					plan.addBlock(b.pos, b.blockid);
+				BlocksData b = plan.getBlockPos(build.getLoc());
+				if(b != null && b.blockid == 64 ){
+					Vector3 [] places = actions.placeDoor( plan.getWorldPos( b.pos)  , b.blockid);
+					boolean flag = false;
+					if( places != null){
+						for(int i = 0; i < places.length; i++){
+							if( places[i] != null){
+								clean.addTarget( places[i]);
+								flag = true;
+							}
+						}
+					}
+					if( !flag){
+						plan.remobeBlockPos(build.getLoc());
+					}
+					
+				}
+				else if(b != null && actions.placeBlock( b.blockid, plan.getWorldPos( b.pos) ) != PLACE_BLOCK_ERR.NONE){
+					Vector3 temp = plan.getWorldPos( b.pos);
+					Block bl = world.getBlockAt( temp.x, temp.y, temp.z);
+					if( bl != null && bl.getTypeId() != b.blockid )
+						clean.addTarget(plan.getWorldPos( b.pos));
+					else{
+						plan.remobeBlockPos(build.getLoc());
+					}
+					//plan.addBlock(b.pos, b.blockid);
+				}
+				else if( b != null){
+					plan.remobeBlockPos(build.getLoc());
 				}
 			}
 			else if(!build.isInAction()){

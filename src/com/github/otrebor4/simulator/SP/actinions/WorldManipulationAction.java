@@ -6,18 +6,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.entity.CraftItem;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.otrebor4.simulator.resources.CraftSP;
+import com.github.otrebor4.simulator.util.Messaging;
 import com.github.otrebor4.simulator.util.Vector3;
 
 public class WorldManipulationAction extends Action{
-	public enum PLACE_BLOCK_ERR{NONE, OCUPPIED, NOTALLOWED,}
+	public enum PLACE_BLOCK_ERR{NONE, OCUPPIED, NOTALLOWED, SAMEBLOCK}
 	public enum BREAK_BLOCK_ERR{NONE, NOBLOCK, NOTALLOWED, } 
 	
 	private World world;
@@ -42,14 +45,43 @@ public class WorldManipulationAction extends Action{
 	
 	public PLACE_BLOCK_ERR placeBlock( int blockid, Vector3 pos ){
 		Block destBlock = world.getBlockAt(pos.x, pos.y, pos.z);
-		
-		if(destBlock.isEmpty()){
-			destBlock.setTypeId( blockid);
+
+		if(destBlock.isEmpty() || destBlock.isLiquid()){
+			destBlock.setTypeId( blockid);	
+			Bukkit.getServer().getPluginManager().callEvent(new BlockPlaceEvent(destBlock, null, destBlock, npc.getBukkitEntity().getItemInHand(), npc.getBukkitEntity(), true));
+
 			return PLACE_BLOCK_ERR.NONE;
-		}
-		else{
+		}else{
 			return PLACE_BLOCK_ERR.OCUPPIED;
 		}
+	}
+	
+	public Vector3 [] placeDoor( Vector3 pos, int id ){
+		Vector3 [] blocks = new Vector3[2];
+		Messaging.log("Placing door at pos " + pos.toString());
+		Block bottom = world.getBlockAt(pos.x, pos.y, pos.z);
+		Block top =  world.getBlockAt(pos.x, pos.y+1, pos.z);
+		boolean flag = true;
+		Messaging.log("TypeId " + bottom.getTypeId());
+		if(bottom.getTypeId() == id ){
+			return blocks;
+		}
+		
+		if( !bottom.isEmpty() && !bottom.isLiquid()){
+			blocks[0] = new Vector3(pos.x, pos.y, pos.z);
+			flag = false;
+		}
+		if( !top.isEmpty() && !top.isLiquid()){
+			blocks[1] = new Vector3(pos.x, pos.y + 1, pos.z);
+			flag = false;
+		}
+		if(flag){
+			Byte data1 = (0x8);
+			Byte data2 = (0x4);
+			bottom.setTypeIdAndData(64, data2,true);
+			top.setTypeIdAndData(64, data1, true);
+		}	
+		return blocks;
 	}
 	
 	public BREAK_BLOCK_ERR breakBlock(Vector3 pos){

@@ -84,6 +84,15 @@ public class Construction {
 		return null;
 	}
 	
+	public BlocksData getBlockPos(Vector3 pos){
+		if(pos != null){
+			if(blocks.containsKey( pos )){
+				return blocks.get(pos);
+			}
+		}
+		return null;
+	}
+	
 	public Vector3 getWorldPos(Vector3 pos){
 		return pos.add( WorldPos);
 	}
@@ -95,7 +104,7 @@ public class Construction {
 			x = dim.x/2;
 			z = dim.y/2;
 		}
-		return getWorldPos( new Vector3(x, 0, z));
+		return getWorldPos( new Vector3(x, 1, z));
 	}
 	
 	public static class BlocksData{

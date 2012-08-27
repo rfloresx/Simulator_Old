@@ -40,9 +40,9 @@ public class BlockInteraction{
 	
 	public void Update(){
 		double dis = targ.distance(npc.getBukkitEntity().getLocation());
-		//Messaging.log("distance is " + dis);
+		
 		if( dis < MIN_DIST ){
-			if( npc.IsFacingT( targ )){
+			if( npc.IsFacingT( targ ) || dis <= .5D){
 				if(!started){
 					setStartTime(System.currentTimeMillis() );
 					started = true;
