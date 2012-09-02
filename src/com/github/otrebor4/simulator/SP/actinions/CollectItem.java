@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
@@ -20,6 +21,7 @@ public class CollectItem extends Action {
 	float range;
 	static double MIN_DIST = 1.75;
 	static Timer delay = new Timer();
+	
 	public CollectItem(CraftSP npc, List<Integer> targetIds, float range) {
 		super(npc);
 		ids = targetIds;
@@ -38,6 +40,14 @@ public class CollectItem extends Action {
 		super(npc);
 		this.range = range;
 		this.all = true;
+	}
+	
+	public CollectItem(CraftSP npc, int id, float range){
+		super(npc);
+		this.range = range;
+		this.ids = new LinkedList<Integer>();
+		ids.add(id);
+		all = false;
 	}
 	
 	public void Update(){
@@ -173,6 +183,29 @@ public class CollectItem extends Action {
 			}
 		}
 		
+		return item;
+	}
+
+	public static Object getClosestItemOfIds(CraftSP npc, int range,
+			Set<Integer> ids) {
+		if(npc == null)
+			return null;
+		Location l = npc.getBukkitEntity().getLocation();
+		
+		Item item = null;
+		List<Item> list = getItemOnRange(npc, range);
+		double dist = range;
+		find:
+		for(Item i: list){
+			double temp = i.getLocation().distance(l);
+			for(int itemId : ids){
+				if(i.getItemStack().getTypeId() == itemId && temp < dist && npc.isInSight( (CraftEntity) i )){
+					item = i;
+					temp = dist;
+					break find;
+				}
+			}
+		}
 		return item;
 	}
 	

@@ -6,17 +6,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-import org.bukkit.Bukkit;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.entity.CraftItem;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.github.otrebor4.simulator.resources.CraftSP;
-import com.github.otrebor4.simulator.util.Messaging;
 import com.github.otrebor4.simulator.util.Vector3;
 
 public class WorldManipulationAction extends Action{
@@ -45,11 +43,8 @@ public class WorldManipulationAction extends Action{
 	
 	public PLACE_BLOCK_ERR placeBlock( int blockid, Vector3 pos ){
 		Block destBlock = world.getBlockAt(pos.x, pos.y, pos.z);
-
 		if(destBlock.isEmpty() || destBlock.isLiquid()){
 			destBlock.setTypeId( blockid);	
-			Bukkit.getServer().getPluginManager().callEvent(new BlockPlaceEvent(destBlock, null, destBlock, npc.getBukkitEntity().getItemInHand(), npc.getBukkitEntity(), true));
-
 			return PLACE_BLOCK_ERR.NONE;
 		}else{
 			return PLACE_BLOCK_ERR.OCUPPIED;
@@ -58,11 +53,10 @@ public class WorldManipulationAction extends Action{
 	
 	public Vector3 [] placeDoor( Vector3 pos, int id ){
 		Vector3 [] blocks = new Vector3[2];
-		Messaging.log("Placing door at pos " + pos.toString());
+
 		Block bottom = world.getBlockAt(pos.x, pos.y, pos.z);
 		Block top =  world.getBlockAt(pos.x, pos.y+1, pos.z);
 		boolean flag = true;
-		Messaging.log("TypeId " + bottom.getTypeId());
 		if(bottom.getTypeId() == id ){
 			return blocks;
 		}
@@ -88,8 +82,7 @@ public class WorldManipulationAction extends Action{
 		if(pos == null){
 			return BREAK_BLOCK_ERR.NOBLOCK;
 		}
-		//Location loc =  npc.getBukkitEntity().getLocation();
-		//Chunk chunk = world.getChunkAt( loc);
+
 		Block target = world.getBlockAt(pos.x, pos.y, pos.z);
 		ItemStack tool = this.npc.getBukkitEntity().getItemInHand();
 		if(!target.isEmpty()){

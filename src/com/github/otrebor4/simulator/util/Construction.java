@@ -11,6 +11,23 @@ public class Construction {
 	private Vector3 Dimension = null;
 	private Vector3 WorldPos = Vector3.ZERO();
 	
+	public HashMap<Integer, Integer > getMaterial(){
+		HashMap<Integer, Integer> list = new HashMap<Integer, Integer>();
+		for(Vector3 pos : keyset){
+			int id = getBlockIdPos(pos);
+			if(list.containsKey(id)){
+				Integer temp = list.remove(id);
+				temp++;
+				list.put(id, temp);
+			}
+			else{
+				list.put(id, 1);
+			}
+		}
+		Messaging.log("materials needs " + list.toString());
+		return list;
+	}
+	
 	public void setDimension(Vector3 dim){
 		Dimension = dim;
 	}
