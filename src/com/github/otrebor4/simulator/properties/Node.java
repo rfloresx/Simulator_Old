@@ -32,7 +32,7 @@ public class Node {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public String getPath() {
 		return this.path;
 	}

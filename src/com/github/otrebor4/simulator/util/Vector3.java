@@ -1,5 +1,7 @@
 package com.github.otrebor4.simulator.util;
 
+import org.bukkit.Location;
+
 public class Vector3 {
 	public int x, y, z;
 	
@@ -36,6 +38,8 @@ public class Vector3 {
 		this.z = other.z;
 	}
 	
-		
+	public static Vector3 fromLocation(Location loc){
+		return new Vector3(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	}
 	
 }

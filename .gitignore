@@ -5,3 +5,5 @@
 *.ear
 
 /.metadata
+/doc
+/bin
